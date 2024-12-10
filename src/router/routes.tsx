@@ -1,10 +1,17 @@
 import { lazy } from "react";
 import { Navigate, RouteObject } from "react-router-dom";
 import LazyLoadComponent from "./lazy-load-component";
+import RootLayout from "~/layout/root";
+import Login from "~/pages/login";
 
-const routes: RouteObject[] = [
+export const routes: RouteObject[] = [
   {
     path: "/",
+    element: <RootLayout />,
+    handle: {
+      name: "Home",
+      icon: <div>Home</div>,
+    },
     children: [
       {
         index: true,
@@ -15,15 +22,36 @@ const routes: RouteObject[] = [
         element: (
           <LazyLoadComponent Component={lazy(() => import("~/pages/home"))} />
         ),
+        handle: {
+          name: "Home",
+          icon: <div>Home</div>,
+        },
       },
       {
         path: "/about",
         element: (
           <LazyLoadComponent Component={lazy(() => import("~/pages/about"))} />
         ),
+        handle: {
+          name: "About",
+          icon: <div>Home</div>,
+        },
+      },
+      {
+        path: "/nest-1",
+        element: <div>nest-1</div>,
+        handle: {
+          name: "Nest-1",
+          icon: <div>Nest-1</div>,
+        },
       },
     ],
   },
+  {
+    path: "/login",
+    element: <Login />,
+    handle: {
+      name: "Login",
+    },
+  },
 ];
-
-export default routes;

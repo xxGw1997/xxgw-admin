@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Loader } from "lucide-react";
 
 const LazyLoadComponent = ({
   Component,
@@ -6,7 +7,7 @@ const LazyLoadComponent = ({
   Component: React.LazyExoticComponent<() => JSX.Element>;
 }) => {
   return (
-    <Suspense fallback={"loading..."}>
+    <Suspense fallback={<Loader className="animate-spin" />}>
       <Component />
     </Suspense>
   );
