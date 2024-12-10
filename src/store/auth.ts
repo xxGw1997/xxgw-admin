@@ -2,8 +2,12 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface AuthStore {
-  user?: any;
-  login: (username: string, password: string) => Promise<boolean>;
+  user?: {
+    email: string;
+    token: string;
+    username: string;
+  } | null;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
 
@@ -11,10 +15,10 @@ export const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
       user: null,
-      login: (username, password) => {
+      login: (email, password) => {
         return new Promise(async (resolve, reject) => {
           try {
-            const user = await mockLogin(username, password);
+            const user = await mockLogin(email, password);
             set({
               user,
             });
@@ -35,12 +39,16 @@ export const useAuthStore = create<AuthStore>()(
   )
 );
 
-function mockLogin(username: string, password: string) {
+function mockLogin(
+  email: string,
+  password: string
+): Promise<AuthStore["user"]> {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        token: `${username}-${password}`,
-        username: username,
+        email,
+        token: `${email}-${password}`,
+        username: "xxgw",
       });
     }, 1000);
   });
