@@ -18,7 +18,7 @@ const User = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <UserAvatar userName={user.username} />
+        <UserAvatar userName={user.name} />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>Hello</DropdownMenuLabel>

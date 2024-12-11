@@ -2,6 +2,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 
 import { useAuthStore } from "~/store/auth";
 
@@ -23,6 +24,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { useState } from "react";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -32,6 +34,7 @@ const loginSchema = z.object({
 const Login = () => {
   const { user, login } = useAuthStore();
   const navigate = useNavigate();
+  const [isSubmit, setIsSubmit] = useState(false);
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -42,8 +45,13 @@ const Login = () => {
   });
 
   const onSubmit = async ({ email, password }: z.infer<typeof loginSchema>) => {
-    const res = await login(email, password);
-    if (res) navigate("/", { replace: true });
+    try {
+      setIsSubmit(true);
+      const res = await login(email, password);
+      if (res) navigate("/", { replace: true });
+    } catch (error) {
+      setIsSubmit(false);
+    }
   };
 
   if (user) {
@@ -68,6 +76,7 @@ const Login = () => {
               <FormField
                 control={loginForm.control}
                 name="email"
+                disabled={isSubmit}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
@@ -88,6 +97,7 @@ const Login = () => {
               <FormField
                 control={loginForm.control}
                 name="password"
+                disabled={isSubmit}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Password</FormLabel>
@@ -101,7 +111,9 @@ const Login = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Login</Button>
+              <Button type="submit" disabled={isSubmit}>
+                {isSubmit && <Loader2 className="animate-spin" />} Login
+              </Button>
             </form>
           </Form>
         </CardContent>
