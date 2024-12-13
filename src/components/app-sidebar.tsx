@@ -41,15 +41,19 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {item.children?.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.url}>
-                        <SidebarMenuSubButton asChild>
-                          <Link to={subItem.url}>{subItem.title}</Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
+                  {item.children ? (
+                    <SidebarMenuSub>
+                      {item.children?.map((subItem) => (
+                        <SidebarMenuSubItem key={subItem.url}>
+                          <SidebarMenuSubButton asChild>
+                            <Link to={subItem.url}>{subItem.title}</Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  ) : (
+                    <Link to={item.url}>{item.title}</Link>
+                  )}
                 </CollapsibleContent>
               </SidebarMenuItem>
             </Collapsible>

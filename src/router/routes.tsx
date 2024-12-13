@@ -3,6 +3,7 @@ import { Navigate, RouteObject } from "react-router-dom";
 import LazyLoadComponent from "./lazy-load-component";
 import RootLayout from "~/layout/root";
 import Login from "~/pages/login";
+import { Edit, UploadCloud } from "lucide-react";
 
 export const routes: RouteObject[] = [
   {
@@ -38,11 +39,23 @@ export const routes: RouteObject[] = [
         },
       },
       {
-        path: "/nest-1",
-        element: <div>nest-1</div>,
+        path: "/write",
+        element: (
+          <LazyLoadComponent Component={lazy(() => import("~/pages/write"))} />
+        ),
         handle: {
-          name: "Nest-1",
-          icon: <div>Nest-1</div>,
+          name: "Write",
+          icon: <Edit />,
+        },
+      },
+      {
+        path: "/upload",
+        element: (
+          <LazyLoadComponent Component={lazy(() => import("~/pages/upload"))} />
+        ),
+        handle: {
+          name: "Upload",
+          icon: <UploadCloud />,
         },
       },
     ],

@@ -1,4 +1,4 @@
-import { useTheme } from "./theme-provider";
+import { useTheme } from "./providers/theme-provider";
 import { SunIcon, MoonIcon } from "lucide-react";
 
 const ThemeSwitcher = () => {
