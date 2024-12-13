@@ -7,37 +7,34 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 import { Hint } from "../hint";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
 import { UrlTab } from "./url-tab";
+
+export type ImgInfo = {
+  src: string;
+  title?: string;
+  alt?: string;
+};
 
 export function CustomInsertImage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectType, setSelectType] = useState<"local" | "url">("url");
   const insertImage = usePublisher(insertImage$);
-  const [imgInfo, setImgInfo] = useState({
+  const [imgInfo, setImgInfo] = useState<ImgInfo>({
     src: "",
     alt: "",
     title: "",
   });
 
-  const handleSave = () => {
+  const handleSave = ({ src, alt = "", title = "" }: ImgInfo) => {
     setDialogOpen(false);
+    insertImage({ src, altText: alt, title });
   };
 
   return (
@@ -77,14 +74,9 @@ export function CustomInsertImage() {
             Make changes to your account here.
           </TabsContent>
           <TabsContent value="url">
-            <UrlTab />
+            <UrlTab handleSubmit={handleSave} />
           </TabsContent>
         </Tabs>
-        <DialogFooter>
-          <Button type="submit" onClick={handleSave}>
-            Save changes
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

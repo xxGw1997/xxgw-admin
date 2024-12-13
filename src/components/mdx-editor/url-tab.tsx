@@ -16,6 +16,8 @@ import {
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 import { ImagePreview } from "../image-preview";
+import { toast } from "sonner";
+import { ImgInfo } from "./insert-image";
 
 const schema = z.object({
   src: z.string().url({ message: "请添加一个有效的url地址" }),
@@ -23,26 +25,35 @@ const schema = z.object({
   title: z.string().optional(),
 });
 
-export const UrlTab = () => {
+export type UrlTabProps = {
+  handleSubmit: ({ src, title, alt }: ImgInfo) => void;
+};
+
+export const UrlTab = ({ handleSubmit }: UrlTabProps) => {
   const [imgPreview, setImgPreview] = useState(false);
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
       src: "",
+      alt: "",
+      title: "",
     },
     mode: "onChange",
   });
 
   const onSubmit = (values: z.infer<typeof schema>) => {
-    console.log(values);
+    const validateFields = schema.safeParse({
+      src: values.src,
+    });
+    if (!validateFields.success) {
+      toast("图片路径无效");
+      return;
+    }
+    handleSubmit({ ...values });
   };
 
   const imgSrc = form.watch("src");
-
-  const onPreview = (e: MouseEvent<HTMLButtonElement>) => {
-    setImgPreview(true);
-  };
 
   const PreviewButton = () => {
     return (
@@ -50,8 +61,8 @@ export const UrlTab = () => {
         {imgSrc && !form.formState.errors.src && (
           <Button
             variant="link"
-            className="text-teal-500 inline-block"
-            onClick={onPreview}
+            className="text-teal-500 inline leading-none !py-0"
+            onClick={() => setImgPreview(true)}
           >
             图片预览
           </Button>
@@ -64,8 +75,9 @@ export const UrlTab = () => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>
-            将图片完整的URL添加到下方URL <PreviewButton />
+          <CardTitle className="flex items-center">
+            <span className="h-9 leading-9">将图片完整的URL添加到下方URL</span>{" "}
+            <PreviewButton />
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -114,7 +126,7 @@ export const UrlTab = () => {
                   <FormItem>
                     <FormLabel>图片Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="shadcn" {...field} />
+                      <Input placeholder="title" {...field} />
                     </FormControl>
                     <FormDescription>
                       用户鼠标指针悬浮图片上时，显示的图片信息

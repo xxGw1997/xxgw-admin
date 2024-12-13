@@ -33,7 +33,7 @@ export const ImagePreview = ({
           图片加载中...
         </div>
       )}
-      {imgStatus === "ok" && <img src={imageUrl} alt="preview" />}
+      {imgStatus === "ok" && <img src={imageUrl} alt="preview" className="pt-5" />}
       {imgStatus === "no" && <p>图片加载失败</p>}
     </div>
   );

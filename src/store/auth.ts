@@ -22,6 +22,15 @@ export const useAuthStore = create<AuthStore>()(
       user: null,
       login: (email, password) => {
         return new Promise(async (resolve, reject) => {
+          // set({
+          //   user: {
+          //     email: 'xxgw@163.com',
+          //     name: 'xxgw',
+          //     accessToken: '123',
+          //     refreshToken: '123',
+          //     role: 'ADMIN'
+          //   },
+          // });
           try {
             const res = await fetch(`/api/auth/signin`, {
               method: "POST",
