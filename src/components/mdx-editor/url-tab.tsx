@@ -76,7 +76,7 @@ export const UrlTab = ({ handleSubmit }: UrlTabProps) => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <span className="h-9 leading-9">将图片完整的URL添加到下方URL</span>{" "}
+            <span className="h-9 leading-9">将图片完整的URL添加到下方</span>
             <PreviewButton />
           </CardTitle>
         </CardHeader>

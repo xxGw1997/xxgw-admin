@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 import { Hint } from "../hint";
 import { UrlTab } from "./url-tab";
+import { LocalTab } from "./local-tab";
 
 export type ImgInfo = {
   src: string;
@@ -24,7 +25,7 @@ export type ImgInfo = {
 
 export function CustomInsertImage() {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectType, setSelectType] = useState<"local" | "url">("url");
+  const [selectType, setSelectType] = useState<"local" | "url">("local");
   const insertImage = usePublisher(insertImage$);
   const [imgInfo, setImgInfo] = useState<ImgInfo>({
     src: "",
@@ -57,7 +58,7 @@ export function CustomInsertImage() {
           </DialogDescription>
         </DialogHeader>
         <Tabs
-          defaultValue="url"
+          defaultValue="local"
           className="w-full"
           value={selectType}
           onValueChange={(value) => setSelectType(value as "local" | "url")}
@@ -71,7 +72,7 @@ export function CustomInsertImage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="local">
-            Make changes to your account here.
+            <LocalTab />
           </TabsContent>
           <TabsContent value="url">
             <UrlTab handleSubmit={handleSave} />
