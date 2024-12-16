@@ -14,8 +14,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 import { Hint } from "../hint";
-import { UrlTab } from "./url-tab";
-import { LocalTab } from "./local-tab";
+import { UrlTab } from "./url-image-tab";
+import { LocalTab } from "./local-image-tab";
 
 export type ImgInfo = {
   src: string;
@@ -27,11 +27,6 @@ export function CustomInsertImage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectType, setSelectType] = useState<"local" | "url">("local");
   const insertImage = usePublisher(insertImage$);
-  const [imgInfo, setImgInfo] = useState<ImgInfo>({
-    src: "",
-    alt: "",
-    title: "",
-  });
 
   const handleSave = ({ src, alt = "", title = "" }: ImgInfo) => {
     setDialogOpen(false);
@@ -72,7 +67,7 @@ export function CustomInsertImage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="local">
-            <LocalTab />
+            <LocalTab handleSubmit={handleSave} />
           </TabsContent>
           <TabsContent value="url">
             <UrlTab handleSubmit={handleSave} />

@@ -9,7 +9,6 @@ import {
   thematicBreakPlugin,
   linkPlugin,
   imagePlugin,
-  InsertImage,
   UndoRedo,
   BoldItalicUnderlineToggles,
   BlockTypeSelect,
@@ -19,7 +18,6 @@ import {
   ListsToggle,
   InsertThematicBreak,
   CodeToggle,
-  CreateLink,
   StrikeThroughSupSubToggles,
   Separator,
   MDXEditorProps,
@@ -27,6 +25,7 @@ import {
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import { CustomInsertImage } from "./insert-image";
+import { CustomInsertLink } from "./insert-link";
 
 type EditorProps = {
   editorRef: ForwardedRef<MDXEditorMethods> | null;
@@ -54,7 +53,8 @@ export const Editor = ({ editorRef, ...props }: EditorProps) => {
                 <Separator />
                 <StrikeThroughSupSubToggles />
                 <Separator />
-                <CreateLink />
+                <CustomInsertLink />
+                {/* <CreateLink /> */}
                 <CustomInsertImage />
                 {/* <InsertImage /> */}
                 <Separator />

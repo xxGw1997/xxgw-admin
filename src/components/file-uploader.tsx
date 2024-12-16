@@ -1,17 +1,33 @@
 import { ChangeEvent, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { Label } from "./ui/label";
+import { Upload } from "lucide-react";
+import { ImgInfo } from "./mdx-editor/insert-image";
+import { checkImageFile, cn } from "~/lib/utils";
+import { toast } from "sonner";
 
 export type UploadStatus = "idle" | "uploading" | "success" | "error";
 
-export const FileUploader = () => {
+type FileUploaderProps = {
+  uploadCallback?: ({ src, alt, title }: ImgInfo) => void;
+};
+
+export const FileUploader = ({ uploadCallback }: FileUploaderProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [imgUrl, setImgUrl] = useState("");
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size >= 3 * 1024 * 1024) {
+        toast("上传图片最大不能超过3M~");
+      } else if (!checkImageFile(file)) {
+        toast("请选择图片类型文件~");
+      } else {
+        setFile(e.target.files[0]);
+      }
     }
   };
 
@@ -19,7 +35,6 @@ export const FileUploader = () => {
     if (!file) return;
 
     setStatus("uploading");
-
     try {
       const res = await fetch("/api/ali-oss/getOssInfo", {
         method: "POST",
@@ -27,7 +42,8 @@ export const FileUploader = () => {
       if (res.ok) {
         const ossInfo = await res.json();
         const formData = new FormData();
-        formData.append("key", file.name);
+        const fileKey = `${Date.now()}_${file.name}`;
+        formData.append("key", fileKey);
         formData.append("OSSAccessKeyId", ossInfo.OSSAccessKeyId);
         formData.append("policy", ossInfo.policy);
         formData.append("signature", ossInfo.Signature);
@@ -40,7 +56,9 @@ export const FileUploader = () => {
         });
 
         if (uploadRes.ok) {
-          const imgUrl = `${ossInfo.host}/${file.name}`;
+          const imgUrl = `${ossInfo.host}/${fileKey}`;
+          uploadCallback &&
+            uploadCallback({ src: imgUrl, title: file.name, alt: file.name });
           setImgUrl(imgUrl);
           setStatus("success");
         }
@@ -52,17 +70,33 @@ export const FileUploader = () => {
 
   return (
     <div className="space-y-4">
-      <Input type="file" onChange={handleFileChange} />
+      <Input
+        id="file-upload"
+        type="file"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      <Label
+        htmlFor="file-upload"
+        className={cn(
+          "cursor-pointer border border-dashed rounded-sm bg-[#fafafa] w-full h-32 flex flex-col justify-center items-center gap-y-5",
+          status === "uploading" ? "cursor-wait" : ""
+        )}
+      >
+        <Upload />
+        选择图片
+      </Label>
+
       {file && (
         <div className="mb-4 text-sm">
-          <p>File name: {file.name}</p>
-          <p>Size: {(file.size / 1024).toFixed(2)} KB</p>
-          <p>Type: {file.type}</p>
+          <p>文件名称: {file.name}</p>
+          <p>文件大小: {(file.size / 1024).toFixed(2)} KB</p>
+          <p>文件类型: {file.type}</p>
         </div>
       )}
 
       {file && status !== "uploading" && (
-        <Button onClick={handleFileUpload}>Upload</Button>
+        <Button onClick={handleFileUpload}>上传</Button>
       )}
 
       {imgUrl && <img src={imgUrl} />}
