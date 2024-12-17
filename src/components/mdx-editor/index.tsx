@@ -26,6 +26,7 @@ import {
 import "@mdxeditor/editor/style.css";
 import { CustomInsertImage } from "./insert-image";
 import { CustomInsertLink } from "./insert-link";
+import CustomLinkDialog from "./custom-link-dialog";
 
 type EditorProps = {
   editorRef: ForwardedRef<MDXEditorMethods> | null;
@@ -69,7 +70,9 @@ export const Editor = ({ editorRef, ...props }: EditorProps) => {
           listsPlugin(),
           thematicBreakPlugin(),
           linkPlugin(),
-          linkDialogPlugin(),
+          linkDialogPlugin({
+            LinkDialog: () => <CustomLinkDialog />,
+          }),
           imagePlugin({ disableImageSettingsButton: true }),
           codeBlockPlugin({ defaultCodeBlockLanguage: "js" }),
           codeMirrorPlugin({
