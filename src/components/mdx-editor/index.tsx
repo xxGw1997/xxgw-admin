@@ -29,6 +29,8 @@ import "@mdxeditor/editor/style.css";
 import { CustomInsertImage } from "./insert-image";
 import { CustomInsertLink } from "./insert-link";
 import CustomLinkDialog from "./custom-link-dialog";
+import { cn } from "~/lib/utils";
+import { useTheme } from "../providers/theme-provider";
 
 type EditorProps = {
   editorRef: ForwardedRef<MDXEditorMethods> | null;
@@ -36,11 +38,14 @@ type EditorProps = {
 
 export const Editor = ({ editorRef, ...props }: EditorProps) => {
   const [insertDialogOpen, setInsertDialogOpen] = useState(false);
-
+  const { theme } = useTheme();
   return (
     <div>
       <MDXEditor
-        className="prose max-w-none"
+        className={cn(
+          "prose dark:prose-invert max-w-none",
+          theme === "dark" ? "dark-theme" : ""
+        )}
         ref={editorRef}
         autoFocus
         {...props}
