@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -30,8 +29,15 @@ const schema = z.object({
   title: z.string(),
 });
 
-export const CustomInsertLink = () => {
-  const [dialogOpen, setDialogOpen] = useState(false);
+type CustomInsertLinkProps = {
+  dialogOpen: boolean;
+  setDialogOpen: (open: boolean) => void;
+};
+
+export const CustomInsertLink = ({
+  dialogOpen,
+  setDialogOpen,
+}: CustomInsertLinkProps) => {
   const insertLink = usePublisher(updateLink$);
 
   const form = useForm<z.infer<typeof schema>>({
@@ -52,7 +58,7 @@ export const CustomInsertLink = () => {
       return;
     }
     insertLink({ url: values.url, title: values.title });
-    setDialogOpen(false)
+    setDialogOpen(false);
   };
 
   return (

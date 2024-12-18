@@ -1,4 +1,4 @@
-import { ForwardedRef } from "react";
+import { ForwardedRef, useState } from "react";
 import {
   MDXEditor,
   MDXEditorMethods,
@@ -33,6 +33,8 @@ type EditorProps = {
 } & MDXEditorProps;
 
 export const Editor = ({ editorRef, ...props }: EditorProps) => {
+  const [insertDialogOpen, setInsertDialogOpen] = useState(false);
+
   return (
     <div>
       <MDXEditor
@@ -54,7 +56,10 @@ export const Editor = ({ editorRef, ...props }: EditorProps) => {
                 <Separator />
                 <StrikeThroughSupSubToggles />
                 <Separator />
-                <CustomInsertLink />
+                <CustomInsertLink
+                  dialogOpen={insertDialogOpen}
+                  setDialogOpen={setInsertDialogOpen}
+                />
                 {/* <CreateLink /> */}
                 <CustomInsertImage />
                 {/* <InsertImage /> */}
@@ -71,7 +76,12 @@ export const Editor = ({ editorRef, ...props }: EditorProps) => {
           thematicBreakPlugin(),
           linkPlugin(),
           linkDialogPlugin({
-            LinkDialog: () => <CustomLinkDialog />,
+            LinkDialog: () => (
+              <CustomLinkDialog
+                dialogOpen={insertDialogOpen}
+                setDialogOpen={setInsertDialogOpen}
+              />
+            ),
           }),
           imagePlugin({ disableImageSettingsButton: true }),
           codeBlockPlugin({ defaultCodeBlockLanguage: "js" }),
