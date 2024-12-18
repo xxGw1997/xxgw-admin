@@ -7,7 +7,7 @@ TODO LIST
 
 ## MDX Editor
 
-* [ ] source mode
+* [x] source mode
 * [ ] dark mode
   
 ## Write Page

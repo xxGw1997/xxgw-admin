@@ -22,6 +22,8 @@ import {
   Separator,
   MDXEditorProps,
   linkDialogPlugin,
+  DiffSourceToggleWrapper,
+  diffSourcePlugin,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import { CustomInsertImage } from "./insert-image";
@@ -45,7 +47,7 @@ export const Editor = ({ editorRef, ...props }: EditorProps) => {
         plugins={[
           toolbarPlugin({
             toolbarContents: () => (
-              <>
+              <DiffSourceToggleWrapper options={["rich-text", "source"]}>
                 <UndoRedo />
                 <Separator />
                 <BoldItalicUnderlineToggles />
@@ -67,7 +69,7 @@ export const Editor = ({ editorRef, ...props }: EditorProps) => {
                 <InsertThematicBreak />
                 <CodeToggle />
                 <InsertCodeBlock />
-              </>
+              </DiffSourceToggleWrapper>
             ),
           }),
           headingsPlugin(),
@@ -88,6 +90,7 @@ export const Editor = ({ editorRef, ...props }: EditorProps) => {
           codeMirrorPlugin({
             codeBlockLanguages: { js: "JavaScript", css: "CSS" },
           }),
+          diffSourcePlugin(),
         ]}
       />
     </div>
