@@ -43,7 +43,7 @@ export const Editor = ({ editorRef, ...props }: EditorProps) => {
     <div>
       <MDXEditor
         className={cn(
-          "prose dark:prose-invert max-w-none",
+          "prose dark:prose-invert max-w-none border rounded-sm min-h-96",
           theme === "dark" ? "dark-theme" : ""
         )}
         ref={editorRef}
