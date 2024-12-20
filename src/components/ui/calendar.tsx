@@ -1,23 +1,123 @@
 import * as React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker } from "react-day-picker";
+import {
+  CaptionProps,
+  DayPicker,
+  FooterProps,
+  useDayPicker,
+  useNavigation,
+} from "react-day-picker";
 
 import { cn } from "~/lib/utils";
-import { buttonVariants } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
+import { format } from "date-fns";
+import { zhCN } from "date-fns/locale";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
+import { Separator } from "./separator";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
+const getYear = (
+  curDate: Date,
+  compareYear: number | undefined,
+  num: number
+): Date | null => {
+  const curYear = curDate.getFullYear() + num;
+  const curYearDate = new Date(curDate);
+  curYearDate.setFullYear(curYear);
+  if (!compareYear) return curYearDate;
+  if (num > 0) {
+    return curYear < compareYear ? curYearDate : null;
+  } else {
+    return curYear > compareYear ? curYearDate : null;
+  }
+};
+
+const CustomCaption = ({ displayMonth }: CaptionProps) => {
+  const { goToMonth, nextMonth, previousMonth, goToDate, currentMonth } =
+    useNavigation();
+  const { fromYear, toYear } = useDayPicker();
+
+  const previousYear = getYear(currentMonth, fromYear, -1);
+  const nextYear = getYear(currentMonth, toYear, 1);
+
+  return (
+    <div className="flex justify-between items-center">
+      <div>
+        <Button
+          variant="ghost"
+          disabled={!previousYear}
+          className="size-3 p-3"
+          onClick={() => previousYear && goToDate(previousYear)}
+        >
+          <ChevronsLeft />
+        </Button>
+        <Button
+          variant="ghost"
+          disabled={!previousMonth}
+          className="size-3 p-3"
+          onClick={() => previousMonth && goToMonth(previousMonth)}
+        >
+          <ChevronLeftIcon />
+        </Button>
+      </div>
+      <div className="flex-1 text-center">
+        {format(displayMonth, "yyyy年MMM", { locale: zhCN })}
+      </div>
+      <div>
+        <Button
+          variant="ghost"
+          disabled={!nextMonth}
+          className="size-3 py-3"
+          onClick={() => nextMonth && goToMonth(nextMonth)}
+        >
+          <ChevronRightIcon />
+        </Button>
+        <Button
+          variant="ghost"
+          disabled={!nextYear}
+          className="size-3 py-3"
+          onClick={() => nextYear && goToDate(nextYear)}
+        >
+          <ChevronsRight />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export type HandleSetToday = {
+  handleSetToday?: (value: Date | undefined, isNow?: boolean) => void;
+};
+
+const CustomFooter = ({ handleSetToday }: FooterProps & HandleSetToday) => {
+  return (
+    <>
+      <Button
+        size="sm"
+        className="w-full"
+        onClick={() => handleSetToday?.(new Date(), true)}
+      >
+        现在
+      </Button>
+    </>
+  );
+};
 function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  handleSetToday,
   ...props
-}: CalendarProps) {
+}: CalendarProps & HandleSetToday) {
   return (
     <DayPicker
+      locale={zhCN}
       captionLayout="dropdown-buttons"
-      fromDate={new Date()}
-      toDate={new Date()}
       showOutsideDays={showOutsideDays}
       className={cn("p-3", className)}
       classNames={{
@@ -61,13 +161,16 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ className, ...props }) => (
-          <ChevronLeft className={cn("h-4 w-4", className)} {...props} />
+        Caption: CustomCaption,
+        Footer: (props) => (
+          <tfoot>
+            <tr>
+              <td>
+                <CustomFooter handleSetToday={handleSetToday} {...props} />
+              </td>
+            </tr>
+          </tfoot>
         ),
-        IconRight: ({ className, ...props }) => (
-          <ChevronRight className={cn("h-4 w-4", className)} {...props} />
-        ),
-        Dropdown: ({ className, ...props }) => <div>123</div>,
       }}
       {...props}
     />
