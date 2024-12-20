@@ -2,12 +2,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Editor } from "~/components/mdx-editor";
 import { Button } from "~/components/ui/button";
-import { Calendar, HandleSetToday } from "~/components/ui/calendar";
+import { Calendar } from "~/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -24,6 +24,7 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
+import { Separator } from "~/components/ui/separator";
 import { Switch } from "~/components/ui/switch";
 import { cn } from "~/lib/utils";
 
@@ -71,6 +72,7 @@ const WritePage = () => {
       date: new Date(),
     },
   });
+  const [dateOpen, setDateOpen] = useState(false);
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     console.log(data);
@@ -186,7 +188,7 @@ const WritePage = () => {
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>发布时间</FormLabel>
-                  <Popover>
+                  <Popover open={dateOpen} onOpenChange={setDateOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -205,106 +207,136 @@ const WritePage = () => {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 flex" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={(value) => handleDateChange(value, false)}
-                        disabled={(date) => {
-                          const threeYearsLater = new Date();
-                          threeYearsLater.setFullYear(
-                            threeYearsLater.getFullYear() + 3
-                          );
-                          return date < new Date() || date > threeYearsLater;
-                        }}
-                        initialFocus
-                        fromYear={new Date().getFullYear() - 5}
-                        toYear={new Date().getFullYear() + 5}
-                        handleSetToday={handleDateChange}
-                      />
-                      <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
-                        <ScrollArea className="w-64 sm:w-auto">
-                          <div className="flex sm:flex-col p-2">
-                            {Array.from({ length: 12 }, (_, i) => i).map(
-                              (hour) => (
-                                <Button
-                                  key={hour}
-                                  size="icon"
-                                  variant={
-                                    field.value &&
-                                    field.value.getHours() % 12 === hour % 12
-                                      ? "default"
-                                      : "ghost"
-                                  }
-                                  className="sm:w-full shrink-0 aspect-square"
-                                  onClick={() =>
-                                    handleTimeChange("hour", hour.toString())
-                                  }
-                                >
-                                  {hour}
-                                </Button>
-                              )
-                            )}
+                    <PopoverContent
+                      className="w-auto p-0 flex flex-col"
+                      align="start"
+                    >
+                      <div className="flex">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(value) => handleDateChange(value, false)}
+                          disabled={(date) => {
+                            const threeYearsLater = new Date();
+                            threeYearsLater.setFullYear(
+                              threeYearsLater.getFullYear() + 3
+                            );
+                            return date < new Date() || date > threeYearsLater;
+                          }}
+                          initialFocus
+                          fromYear={new Date().getFullYear() - 5}
+                          toYear={new Date().getFullYear() + 5}
+                        />
+                        <div className="flex flex-col">
+                          <div className="flex flex-col sm:flex-row sm:h-[330px] divide-y sm:divide-y-0 sm:divide-x">
+                            <Separator orientation="vertical" />
+                            <ScrollArea className="w-64 sm:w-auto">
+                              <div className="flex sm:flex-col p-2">
+                                {Array.from({ length: 12 }, (_, i) => i).map(
+                                  (hour) => (
+                                    <Button
+                                      key={hour}
+                                      size="icon"
+                                      variant={
+                                        field.value &&
+                                        field.value.getHours() % 12 ===
+                                          hour % 12
+                                          ? "default"
+                                          : "ghost"
+                                      }
+                                      className="sm:w-full shrink-0 aspect-square"
+                                      onClick={() =>
+                                        handleTimeChange(
+                                          "hour",
+                                          hour.toString()
+                                        )
+                                      }
+                                    >
+                                      {hour}
+                                    </Button>
+                                  )
+                                )}
+                              </div>
+                              <ScrollBar
+                                orientation="horizontal"
+                                className="sm:hidden"
+                              />
+                            </ScrollArea>
+                            <ScrollArea className="w-64 sm:w-auto">
+                              <div className="flex sm:flex-col p-2">
+                                {Array.from({ length: 60 }, (_, i) => i).map(
+                                  (minute) => (
+                                    <Button
+                                      key={minute}
+                                      size="icon"
+                                      variant={
+                                        field.value &&
+                                        field.value.getMinutes() === minute
+                                          ? "default"
+                                          : "ghost"
+                                      }
+                                      className="sm:w-full shrink-0 aspect-square"
+                                      onClick={() =>
+                                        handleTimeChange(
+                                          "minute",
+                                          minute.toString()
+                                        )
+                                      }
+                                    >
+                                      {minute.toString().padStart(2, "0")}
+                                    </Button>
+                                  )
+                                )}
+                              </div>
+                              <ScrollBar
+                                orientation="horizontal"
+                                className="sm:hidden"
+                              />
+                            </ScrollArea>
+                            <ScrollArea className="">
+                              <div className="flex sm:flex-col p-2">
+                                {["AM", "PM"].map((ampm) => (
+                                  <Button
+                                    key={ampm}
+                                    size="icon"
+                                    variant={
+                                      field.value &&
+                                      ((ampm === "AM" &&
+                                        field.value.getHours() < 12) ||
+                                        (ampm === "PM" &&
+                                          field.value.getHours() >= 12))
+                                        ? "default"
+                                        : "ghost"
+                                    }
+                                    className="sm:w-full shrink-0 aspect-square"
+                                    onClick={() =>
+                                      handleTimeChange("ampm", ampm)
+                                    }
+                                  >
+                                    {ampm}
+                                  </Button>
+                                ))}
+                              </div>
+                            </ScrollArea>
                           </div>
-                          <ScrollBar
-                            orientation="horizontal"
-                            className="sm:hidden"
-                          />
-                        </ScrollArea>
-                        <ScrollArea className="w-64 sm:w-auto">
-                          <div className="flex sm:flex-col p-2">
-                            {Array.from({ length: 60 }, (_, i) => i).map(
-                              (minute) => (
-                                <Button
-                                  key={minute}
-                                  size="icon"
-                                  variant={
-                                    field.value &&
-                                    field.value.getMinutes() === minute
-                                      ? "default"
-                                      : "ghost"
-                                  }
-                                  className="sm:w-full shrink-0 aspect-square"
-                                  onClick={() =>
-                                    handleTimeChange(
-                                      "minute",
-                                      minute.toString()
-                                    )
-                                  }
-                                >
-                                  {minute.toString().padStart(2, "0")}
-                                </Button>
-                              )
-                            )}
-                          </div>
-                          <ScrollBar
-                            orientation="horizontal"
-                            className="sm:hidden"
-                          />
-                        </ScrollArea>
-                        <ScrollArea className="">
-                          <div className="flex sm:flex-col p-2">
-                            {["AM", "PM"].map((ampm) => (
-                              <Button
-                                key={ampm}
-                                size="icon"
-                                variant={
-                                  field.value &&
-                                  ((ampm === "AM" &&
-                                    field.value.getHours() < 12) ||
-                                    (ampm === "PM" &&
-                                      field.value.getHours() >= 12))
-                                    ? "default"
-                                    : "ghost"
-                                }
-                                className="sm:w-full shrink-0 aspect-square"
-                                onClick={() => handleTimeChange("ampm", ampm)}
-                              >
-                                {ampm}
-                              </Button>
-                            ))}
-                          </div>
-                        </ScrollArea>
+                        </div>
+                      </div>
+                      <Separator className="" />
+                      <div className="flex justify-between p-2">
+                        <Button
+                          size="sm"
+                          variant="link"
+                          onClick={() => handleDateChange(new Date(), true)}
+                        >
+                          现在
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => setDateOpen(false)}
+                        >
+                          确定
+                        </Button>
                       </div>
                     </PopoverContent>
                   </Popover>

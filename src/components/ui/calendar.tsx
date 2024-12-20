@@ -2,7 +2,6 @@ import * as React from "react";
 import {
   CaptionProps,
   DayPicker,
-  FooterProps,
   useDayPicker,
   useNavigation,
 } from "react-day-picker";
@@ -17,7 +16,6 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import { Separator } from "./separator";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -90,30 +88,13 @@ const CustomCaption = ({ displayMonth }: CaptionProps) => {
   );
 };
 
-export type HandleSetToday = {
-  handleSetToday?: (value: Date | undefined, isNow?: boolean) => void;
-};
-
-const CustomFooter = ({ handleSetToday }: FooterProps & HandleSetToday) => {
-  return (
-    <>
-      <Button
-        size="sm"
-        className="w-full"
-        onClick={() => handleSetToday?.(new Date(), true)}
-      >
-        现在
-      </Button>
-    </>
-  );
-};
 function Calendar({
   className,
   classNames,
   showOutsideDays = true,
-  handleSetToday,
+
   ...props
-}: CalendarProps & HandleSetToday) {
+}: CalendarProps) {
   return (
     <DayPicker
       locale={zhCN}
@@ -162,15 +143,6 @@ function Calendar({
       }}
       components={{
         Caption: CustomCaption,
-        Footer: (props) => (
-          <tfoot>
-            <tr>
-              <td>
-                <CustomFooter handleSetToday={handleSetToday} {...props} />
-              </td>
-            </tr>
-          </tfoot>
-        ),
       }}
       {...props}
     />
