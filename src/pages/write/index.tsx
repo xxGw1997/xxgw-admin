@@ -30,11 +30,10 @@ import { cn } from "~/lib/utils";
 
 const formSchema = z
   .object({
-    title: z.string().max(32),
-    desc: z.string().max(50),
-    slug: z.string().min(2),
+    title: z.string().max(32).min(1, { message: "请输入文章标题" }).trim(),
+    desc: z.string().max(50).min(1, { message: "请输入文章描述" }).trim(),
     category: z.array(z.string().min(1)).min(1).nonempty("请选择一个分类"),
-    content: z.string(),
+    content: z.string().trim(),
     isPublishNow: z.boolean(),
     date: z.date().optional(),
   })
@@ -60,22 +59,30 @@ const options = [
 ];
 
 const WritePage = () => {
+  const [dateOpen, setDateOpen] = useState(false);
+
+  const editorRef = useRef<MDXEditorMethods>(null);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       desc: "",
-      slug: "",
       category: [],
       content: "",
       isPublishNow: true,
       date: new Date(),
     },
   });
-  const [dateOpen, setDateOpen] = useState(false);
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log(data);
+    const content = editorRef.current?.getMarkdown();
+    form.setValue("content", content ?? "");
+    const validateFileds = formSchema.safeParse({ ...data, content });
+    if (validateFileds.success) {
+      data.content = content ?? ""; // 将内容设置到 data 对象中
+      console.log(data);
+    }
   };
 
   const handleDateChange = (date: Date | undefined, isNow?: boolean) => {
@@ -91,7 +98,10 @@ const WritePage = () => {
     }
   };
 
-  function handleTimeChange(type: "hour" | "minute" | "ampm", value: string) {
+  const handleTimeChange = (
+    type: "hour" | "minute" | "ampm",
+    value: string
+  ) => {
     const currentDate = form.getValues("date") || new Date();
     let newDate = new Date(currentDate);
 
@@ -110,9 +120,8 @@ const WritePage = () => {
     }
 
     form.setValue("date", newDate);
-  }
+  };
 
-  const editorRef = useRef<MDXEditorMethods>(null);
   return (
     <div>
       <Form {...form}>
@@ -158,7 +167,7 @@ const WritePage = () => {
                   defaultValue={field.value}
                   placeholder="添加文章分类，可以选择多个"
                   variant="inverted"
-                  animation={2}
+                  animation={0}
                   maxCount={10}
                 />
                 <FormMessage />
