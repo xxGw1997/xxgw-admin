@@ -43,9 +43,10 @@ export const Editor = ({ editorRef, ...props }: EditorProps) => {
     <div>
       <MDXEditor
         className={cn(
-          "prose dark:prose-invert max-w-none border rounded-sm min-h-96",
+          "dark:prose-invert max-w-none border rounded-sm",
           theme === "dark" ? "dark-theme" : ""
         )}
+        contentEditableClassName="prose min-h-96"
         ref={editorRef}
         autoFocus
         {...props}
