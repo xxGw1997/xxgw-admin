@@ -40,7 +40,7 @@ export const useAuthStore = create<AuthStore>()(
               body: JSON.stringify({ email, password }),
             });
             if (res.ok) {
-              const user = await res.json();
+              const user = ((await res.json()) as any).data;
               set({
                 user,
               });

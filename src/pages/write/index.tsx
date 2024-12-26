@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Editor } from "~/components/mdx-editor";
@@ -27,6 +27,7 @@ import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { Separator } from "~/components/ui/separator";
 import { Switch } from "~/components/ui/switch";
 import { cn } from "~/lib/utils";
+import { useAuthStore } from "~/store/auth";
 
 const formSchema = z
   .object({
@@ -50,16 +51,16 @@ const formSchema = z
     }
   );
 
-const options = [
-  { label: "React", value: "react" },
-  { label: "Vue", value: "vue" },
-  { label: "Angular", value: "angular" },
-  { label: "Svelte", value: "svelte" },
-  { label: "Node", value: "node" },
-];
+type OptionsItem = {
+  label: string;
+  value: string;
+};
 
 const WritePage = () => {
+  const user = useAuthStore((state) => state.user);
+
   const [dateOpen, setDateOpen] = useState(false);
+  const [categories, setCategories] = useState<OptionsItem[]>([]);
 
   const editorRef = useRef<MDXEditorMethods>(null);
 
@@ -74,6 +75,27 @@ const WritePage = () => {
       date: new Date(),
     },
   });
+
+  useEffect(() => {
+    const getCategroies = async () => {
+      const res = await fetch("/api/category", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.accessToken}`,
+        },
+      });
+      if (res.ok) {
+        const data = ((await res.json()) as any).data;
+        const categories = data.map((item: any) => ({
+          label: item.title,
+          value: item.id + "",
+        }));
+        setCategories(categories);
+      }
+    };
+    getCategroies();
+  }, []);
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     const content = editorRef.current?.getMarkdown();
@@ -162,7 +184,7 @@ const WritePage = () => {
               <FormItem>
                 <FormLabel>文章分类</FormLabel>
                 <MultiSelect
-                  options={options}
+                  options={categories}
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   placeholder="添加文章分类，可以选择多个"
