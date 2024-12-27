@@ -3,7 +3,7 @@ import { MDXEditorMethods } from "@mdxeditor/editor";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { getCategories } from "~/api/category";
@@ -29,7 +29,6 @@ import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import { Separator } from "~/components/ui/separator";
 import { Switch } from "~/components/ui/switch";
 import { cn } from "~/lib/utils";
-import { useAuthStore } from "~/store/auth";
 
 const formSchema = z
   .object({
@@ -53,14 +52,9 @@ const formSchema = z
     }
   );
 
-type OptionsItem = {
-  label: string;
-  value: string;
-};
-
 const WritePage = () => {
   const [dateOpen, setDateOpen] = useState(false);
-  const [categories, setCategories] = useState<OptionsItem[]>([]);
+  // const [categories, setCategories] = useState<OptionsItem[]>([]);
 
   const editorRef = useRef<MDXEditorMethods>(null);
 
@@ -76,19 +70,18 @@ const WritePage = () => {
     },
   });
 
-  useEffect(() => {
-    const getCategroies = async () => {
-      const categories = await getCategories();
-      if (categories.success) {
-        const formatedData = categories.data.map((item) => ({
+  const { data: categories, status: categoryStatus } = useQuery({
+    queryKey: [getCategories.name],
+    queryFn: async () => {
+      const res = await getCategories();
+      if (res.success && res.data.length > 0) {
+        return res.data.map((item) => ({
           label: item.title,
           value: item.id + "",
         }));
-        setCategories(formatedData);
-      }
-    };
-    getCategroies();
-  }, []);
+      } else return [];
+    },
+  });
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     const content = editorRef.current?.getMarkdown();
@@ -177,7 +170,7 @@ const WritePage = () => {
               <FormItem>
                 <FormLabel>文章分类</FormLabel>
                 <MultiSelect
-                  options={categories}
+                  options={categoryStatus === "success" ? categories : []}
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   placeholder="添加文章分类，可以选择多个"

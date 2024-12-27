@@ -27,8 +27,8 @@ import { Input } from "~/components/ui/input";
 import { useState } from "react";
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
+  email: z.string().email().min(1),
+  password: z.string().min(1),
 });
 
 const Login = () => {
