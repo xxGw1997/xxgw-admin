@@ -44,6 +44,7 @@ export const useAuthStore = create<AuthStore>()(
               set({
                 user,
               });
+              localStorage.setItem("accessToken", user.accessToken);
               resolve(true);
             } else {
               throw new Error();

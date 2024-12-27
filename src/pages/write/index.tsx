@@ -1,10 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MDXEditorMethods } from "@mdxeditor/editor";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { getCategories } from "~/api/category";
 import { Editor } from "~/components/mdx-editor";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -57,8 +59,6 @@ type OptionsItem = {
 };
 
 const WritePage = () => {
-  const user = useAuthStore((state) => state.user);
-
   const [dateOpen, setDateOpen] = useState(false);
   const [categories, setCategories] = useState<OptionsItem[]>([]);
 
@@ -78,20 +78,13 @@ const WritePage = () => {
 
   useEffect(() => {
     const getCategroies = async () => {
-      const res = await fetch("/api/category", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user?.accessToken}`,
-        },
-      });
-      if (res.ok) {
-        const data = ((await res.json()) as any).data;
-        const categories = data.map((item: any) => ({
+      const categories = await getCategories();
+      if (categories.success) {
+        const formatedData = categories.data.map((item) => ({
           label: item.title,
           value: item.id + "",
         }));
-        setCategories(categories);
+        setCategories(formatedData);
       }
     };
     getCategroies();
