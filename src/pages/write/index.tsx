@@ -54,7 +54,6 @@ const formSchema = z
 
 const WritePage = () => {
   const [dateOpen, setDateOpen] = useState(false);
-  // const [categories, setCategories] = useState<OptionsItem[]>([]);
 
   const editorRef = useRef<MDXEditorMethods>(null);
 

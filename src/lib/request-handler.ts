@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
+import { ACCESS_TOKEN_KEY } from "./constants";
 
 type SuccessResponse<V> = {
   data: V;
@@ -25,7 +26,7 @@ export const instance = axios.create({
 });
 
 instance.interceptors.request.use((config) => {
-  let accessToken = localStorage.getItem("accessToken");
+  let accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
   if (accessToken) {
     config.headers["Authorization"] = `Bearer ${accessToken}`;
   }

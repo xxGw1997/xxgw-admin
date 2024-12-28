@@ -1,17 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { authFetch } from "~/lib/authFetch";
+import { signIn, signOut, UserInfo } from "~/api/auth";
+import { ACCESS_TOKEN_KEY } from "~/lib/constants";
 
 export type Role = "ADMIN" | "EDITOR" | "USER";
 
 interface AuthStore {
-  user?: {
-    email: string;
-    accessToken: string;
-    refreshToken: string;
-    name: string;
-    role: Role;
-  } | null;
+  user?: UserInfo;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
@@ -19,7 +14,7 @@ interface AuthStore {
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
-      user: null,
+      user: undefined,
       login: (email, password) => {
         return new Promise(async (resolve, reject) => {
           // set({
@@ -32,26 +27,17 @@ export const useAuthStore = create<AuthStore>()(
           //   },
           // });
           try {
-            const res = await fetch(`/api/auth/signin`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ email, password }),
-            });
-            if (res.ok) {
-              const user = ((await res.json()) as any).data;
-              set({
-                user,
-              });
-              localStorage.setItem("accessToken", user.accessToken);
+            const userInfo = await signIn({ email, password });
+            if (userInfo.success) {
+              set({ user: userInfo.data });
+              localStorage.setItem(ACCESS_TOKEN_KEY, userInfo.data.accessToken);
               resolve(true);
             } else {
-              throw new Error();
+              resolve(false);
             }
           } catch (error) {
             set({
-              user: null,
+              user: undefined,
             });
             reject(false);
           }
@@ -59,11 +45,10 @@ export const useAuthStore = create<AuthStore>()(
       },
       logout: async () => {
         try {
-          const res = await authFetch(`/api/auth/signout`, {
-            method: "POST",
-          });
-          if (res.ok) {
-            set({ user: null });
+          const res = await signOut();
+          if (res.success) {
+            set({ user: undefined });
+            localStorage.removeItem(ACCESS_TOKEN_KEY);
           }
         } catch (error) {
           console.error(error);
