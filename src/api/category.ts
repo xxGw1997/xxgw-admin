@@ -1,11 +1,15 @@
-import { instance } from "~/lib/request-handler";
-import { requestHandler } from "~/lib/request-handler";
+import { useQuery } from "@tanstack/react-query";
+import { httpRequest } from "~/lib/http";
 
 export type Category = {
   id: number;
   title: string;
 };
 
-export const getCategories = requestHandler<unknown, Category[]>(() =>
-  instance.get("/api/category")
-);
+export const CATEGORY_LIST_KEY = "CATEGORY_LIST_KEY";
+
+export const useGetCategories = () =>
+  useQuery<Category[]>({
+    queryKey: [CATEGORY_LIST_KEY],
+    queryFn: () => httpRequest.get("/api/category"),
+  });

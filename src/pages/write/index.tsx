@@ -1,12 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MDXEditorMethods } from "@mdxeditor/editor";
-import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { getCategories } from "~/api/category";
+import { useGetCategories } from "~/api/category";
+import { useCreatePost } from "~/api/post";
 import { Editor } from "~/components/mdx-editor";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -69,18 +69,16 @@ const WritePage = () => {
     },
   });
 
-  const { data: categories, status: categoryStatus } = useQuery({
-    queryKey: [getCategories.name],
-    queryFn: async () => {
-      const res = await getCategories();
-      if (res.success && res.data.length > 0) {
-        return res.data.map((item) => ({
-          label: item.title,
-          value: item.id + "",
-        }));
-      } else return [];
-    },
-  });
+  const { data: categories } = useGetCategories();
+
+  const formatCategories = categories
+    ? categories.map((category) => ({
+        label: category.title,
+        value: category.id + "",
+      }))
+    : [];
+
+  const { mutate: createPost } = useCreatePost();
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     const content = editorRef.current?.getMarkdown();
@@ -88,7 +86,7 @@ const WritePage = () => {
     const validateFileds = formSchema.safeParse({ ...data, content });
     if (validateFileds.success) {
       data.content = content ?? ""; // 将内容设置到 data 对象中
-      console.log(data);
+      createPost({ ...validateFileds.data });
     }
   };
 
@@ -169,7 +167,7 @@ const WritePage = () => {
               <FormItem>
                 <FormLabel>文章分类</FormLabel>
                 <MultiSelect
-                  options={categoryStatus === "success" ? categories : []}
+                  options={formatCategories}
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   placeholder="添加文章分类，可以选择多个"

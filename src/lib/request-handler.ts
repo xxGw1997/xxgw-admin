@@ -33,6 +33,16 @@ instance.interceptors.request.use((config) => {
   return config;
 });
 
+instance.interceptors.response.use((response: AxiosResponse) => {
+  return response.data.data;
+});
+
+type ResponseResult<T> = {
+  success: boolean;
+  message: string;
+  data: T;
+};
+
 export const requestHandler =
   <T, V, E = AxiosError>(request: BaseRequest<T, V>) =>
   async (params?: T): BaseResponse<V, E> => {
@@ -40,10 +50,6 @@ export const requestHandler =
       const response = await request(params);
       return response.data;
     } catch (error) {
-      return {
-        error: error as E,
-        message: "error",
-        success: false,
-      };
+      throw error;
     }
   };
