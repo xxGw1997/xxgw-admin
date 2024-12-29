@@ -69,14 +69,14 @@ const WritePage = () => {
     },
   });
 
-  const { data: categories } = useGetCategories();
-
-  const formatCategories = categories
-    ? categories.map((category) => ({
-        label: category.title,
-        value: category.id + "",
-      }))
-    : [];
+  const { data: categories, isError: isCategoriesError } = useGetCategories();
+  const formatCategories =
+    categories && !isCategoriesError
+      ? categories.map((category) => ({
+          label: category.title,
+          value: category.id + "",
+        }))
+      : [];
 
   const { mutate: createPost } = useCreatePost();
 

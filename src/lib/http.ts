@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ACCESS_TOKEN_KEY } from "./constants";
+import { toast } from "sonner";
 
 export const httpRequest = axios.create({
   headers: {
@@ -16,4 +17,12 @@ httpRequest.interceptors.request.use((config) => {
   return config;
 });
 
-httpRequest.interceptors.response.use((res) => res.data.data);
+httpRequest.interceptors.response.use(
+  (res) => {
+    return res.data.data;
+  },
+  (err) => {
+    toast(err.response.data.message);
+    throw err;
+  }
+);
