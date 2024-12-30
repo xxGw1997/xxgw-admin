@@ -1,9 +1,9 @@
 import { lazy } from "react";
 import { Navigate, RouteObject } from "react-router-dom";
-import LazyLoadComponent from "./lazy-load-component";
+import { Edit, UploadCloud } from "lucide-react";
 import RootLayout from "~/layout/root";
 import Login from "~/pages/login";
-import { Edit, UploadCloud } from "lucide-react";
+import LazyLoadComponent from "./lazy-load-component";
 
 export const routes: RouteObject[] = [
   {
@@ -40,6 +40,16 @@ export const routes: RouteObject[] = [
       },
       {
         path: "/write",
+        element: (
+          <LazyLoadComponent Component={lazy(() => import("~/pages/write"))} />
+        ),
+        handle: {
+          name: "Write",
+          icon: <Edit />,
+        },
+      },
+      {
+        path: "/write/:postId",
         element: (
           <LazyLoadComponent Component={lazy(() => import("~/pages/write"))} />
         ),

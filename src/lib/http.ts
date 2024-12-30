@@ -1,6 +1,13 @@
-import axios from "axios";
-import { ACCESS_TOKEN_KEY } from "./constants";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { toast } from "sonner";
+import { ACCESS_TOKEN_KEY } from "./constants";
+import { useAuthStore } from "~/store/auth";
+
+export interface Result<T = any> {
+  success: boolean;
+  message: string;
+  data?: T;
+}
 
 export const httpRequest = axios.create({
   headers: {
@@ -18,11 +25,20 @@ httpRequest.interceptors.request.use((config) => {
 });
 
 httpRequest.interceptors.response.use(
-  (res) => {
-    return res.data.data;
+  (res: AxiosResponse<Result>) => {
+    if (res.data.success) {
+      return res.data.data;
+    } else {
+      throw new Error(res.data.message);
+    }
   },
-  (err) => {
-    toast(err.response.data.message);
-    throw err;
+  (err: AxiosError<Result>) => {
+    toast.error(err.response?.data.message, {
+      position: "top-center",
+    });
+    if (err.status === 401) {
+      useAuthStore.getState().reset();
+    }
+    return Promise.reject(err);
   }
 );

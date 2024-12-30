@@ -2,11 +2,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
 import { z } from "zod";
 import { useGetCategories } from "~/api/category";
-import { useCreatePost } from "~/api/post";
+import { useCreatePost, useGetPost } from "~/api/post";
 import { Editor } from "~/components/mdx-editor";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -34,21 +35,21 @@ const formSchema = z
   .object({
     title: z.string().max(32).min(1, { message: "请输入文章标题" }).trim(),
     desc: z.string().max(50).min(1, { message: "请输入文章描述" }).trim(),
-    category: z.array(z.string().min(1)).min(1).nonempty("请选择一个分类"),
+    categories: z.array(z.string().min(1)).min(1).nonempty("请选择一个分类"),
     content: z.string().trim(),
     isPublishNow: z.boolean(),
-    date: z.date().optional(),
+    publishDate: z.date().optional(),
   })
   .refine(
     (data) => {
-      if (!data.isPublishNow && !data.date) {
+      if (!data.isPublishNow && !data.publishDate) {
         return false;
       }
       return true;
     },
     {
       message: "请选择文章的发布时间",
-      path: ["date"],
+      path: ["publishDate"],
     }
   );
 
@@ -62,10 +63,10 @@ const WritePage = () => {
     defaultValues: {
       title: "",
       desc: "",
-      category: [],
+      categories: [],
       content: "",
       isPublishNow: true,
-      date: new Date(),
+      publishDate: new Date(),
     },
   });
 
@@ -78,6 +79,24 @@ const WritePage = () => {
         }))
       : [];
 
+  const params = useParams();
+
+  const { data: postInfo } = useGetPost(params.postId);
+
+  useEffect(() => {
+    if (postInfo) {
+      form.reset({
+        title: postInfo.title,
+        desc: postInfo.desc,
+        categories: postInfo.categories.map((c) => c + ""),
+        content: postInfo.content,
+        isPublishNow: false,
+        publishDate: new Date(postInfo.publishDate as string),
+      });
+      editorRef.current?.setMarkdown(postInfo.content);
+    }
+  }, [postInfo]);
+
   const { mutate: createPost } = useCreatePost();
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
@@ -86,20 +105,24 @@ const WritePage = () => {
     const validateFileds = formSchema.safeParse({ ...data, content });
     if (validateFileds.success) {
       data.content = content ?? ""; // 将内容设置到 data 对象中
-      createPost({ ...validateFileds.data });
+      createPost({
+        ...validateFileds.data,
+        publishDate: validateFileds.data.publishDate?.toString(),
+        categories: validateFileds.data.categories.map((c) => parseInt(c)),
+      });
     }
   };
 
   const handleDateChange = (date: Date | undefined, isNow?: boolean) => {
     if (date) {
       if (!isNow) {
-        const selectedDate = form.getValues("date");
+        const selectedDate = form.getValues("publishDate");
         const selectedHour = selectedDate?.getHours();
         const selectedMins = selectedDate?.getMinutes();
         selectedHour && date.setHours(selectedHour);
         selectedMins && date.setMinutes(selectedMins);
       }
-      form.setValue("date", date);
+      form.setValue("publishDate", date);
     }
   };
 
@@ -107,7 +130,7 @@ const WritePage = () => {
     type: "hour" | "minute" | "ampm",
     value: string
   ) => {
-    const currentDate = form.getValues("date") || new Date();
+    const currentDate = form.getValues("publishDate") || new Date();
     let newDate = new Date(currentDate);
 
     if (type === "hour") {
@@ -124,7 +147,7 @@ const WritePage = () => {
       }
     }
 
-    form.setValue("date", newDate);
+    form.setValue("publishDate", newDate);
   };
 
   return (
@@ -162,7 +185,7 @@ const WritePage = () => {
           />
           <FormField
             control={form.control}
-            name="category"
+            name="categories"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>文章分类</FormLabel>
@@ -198,7 +221,7 @@ const WritePage = () => {
           {!form.watch("isPublishNow") && (
             <FormField
               control={form.control}
-              name="date"
+              name="publishDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>发布时间</FormLabel>

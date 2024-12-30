@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { signIn, signOut, UserInfo } from "~/api/auth";
-import { ACCESS_TOKEN_KEY } from "~/lib/constants";
+import { ACCESS_TOKEN_KEY, USER_INFO_KEY } from "~/lib/constants";
 
 export type Role = "ADMIN" | "EDITOR" | "USER";
 
@@ -9,6 +9,7 @@ interface AuthStore {
   user?: UserInfo;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  reset: () => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -54,7 +55,12 @@ export const useAuthStore = create<AuthStore>()(
           console.error(error);
         }
       },
+      reset: () => {
+        set({ user: undefined });
+        localStorage.removeItem(ACCESS_TOKEN_KEY);
+        localStorage.removeItem(USER_INFO_KEY);
+      },
     }),
-    { name: "user-info" }
+    { name: USER_INFO_KEY }
   )
 );
