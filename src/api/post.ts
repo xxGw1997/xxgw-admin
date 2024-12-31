@@ -11,11 +11,6 @@ export type PostInfo = {
   publishDate?: string;
 };
 
-export const useCreatePost = () =>
-  useMutation<PostInfo, AxiosResponse<PostInfo>, PostInfo>({
-    mutationFn: (payload: PostInfo) => httpRequest.post("/api/post", payload),
-  });
-
 export const GET_POST_KEY = "GET_POST_KEY";
 
 export const useGetPost = (postId: string | undefined) =>
@@ -23,4 +18,20 @@ export const useGetPost = (postId: string | undefined) =>
     queryKey: [GET_POST_KEY, postId],
     queryFn: () => httpRequest.get(`/api/post/${postId}`),
     enabled: Boolean(postId),
+  });
+
+export const useCreatePost = () =>
+  useMutation<PostInfo, AxiosResponse<PostInfo>, PostInfo>({
+    mutationFn: (payload) => httpRequest.post("/api/post", payload),
+  });
+
+export const useUpdatePost = ({ onSuccess }: { onSuccess?: () => void }) =>
+  useMutation<
+    PostInfo,
+    AxiosResponse<PostInfo>,
+    { data: PostInfo; id: number }
+  >({
+    mutationFn: (payload) =>
+      httpRequest.patch(`/api/post/${payload.id}`, payload.data),
+    onSuccess: onSuccess ? onSuccess : () => {},
   });

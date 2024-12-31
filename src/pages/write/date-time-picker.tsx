@@ -37,19 +37,18 @@ const dateTimePickerVariants = cva(
 interface DateTimePickerProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof dateTimePickerVariants> {
-  defaultDate?: Date;
+  selectedDate?: Date;
   onDateChange: (date: Date) => void;
 }
 
 const DateTimePicker = ({
   variant,
-  defaultDate,
+  selectedDate,
   onDateChange,
   className,
   ...props
 }: DateTimePickerProps) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [selectedDate, setSelectDate] = useState<Date | undefined>(defaultDate);
 
   const handleDateChange = (date: Date | undefined, isNow?: boolean) => {
     if (date) {
@@ -59,7 +58,6 @@ const DateTimePicker = ({
         selectedHour && date.setHours(selectedHour);
         selectedMins && date.setMinutes(selectedMins);
       }
-      setSelectDate(date);
       onDateChange(date);
     }
   };
@@ -85,7 +83,6 @@ const DateTimePicker = ({
       }
     }
 
-    setSelectDate(newDate);
     onDateChange(newDate);
   };
 

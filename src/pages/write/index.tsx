@@ -1,16 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MDXEditorMethods } from "@mdxeditor/editor";
-import { format, parseISO } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { parseISO } from "date-fns";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { z } from "zod";
+
 import { useGetCategories } from "~/api/category";
-import { useCreatePost, useGetPost } from "~/api/post";
+import { useCreatePost, useGetPost, useUpdatePost } from "~/api/post";
+
 import { Editor } from "~/components/mdx-editor";
 import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -21,16 +21,9 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { MultiSelect } from "~/components/ui/muti-select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
-import { Separator } from "~/components/ui/separator";
 import { Switch } from "~/components/ui/switch";
-import { cn } from "~/lib/utils";
 import DateTimePicker from "./date-time-picker";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -55,8 +48,6 @@ const formSchema = z
   );
 
 const WritePage = () => {
-  const [dateOpen, setDateOpen] = useState(false);
-
   const editorRef = useRef<MDXEditorMethods>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -81,6 +72,7 @@ const WritePage = () => {
       : [];
 
   const params = useParams();
+  const isUpdate = Boolean(params.postId);
 
   const { data: postInfo } = useGetPost(params.postId);
 
@@ -99,57 +91,34 @@ const WritePage = () => {
   }, [postInfo]);
 
   const { mutate: createPost } = useCreatePost();
+  const { mutate: updatePost } = useUpdatePost({
+    onSuccess: () => {
+      toast.success("更新成功~");
+    },
+  });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     const content = editorRef.current?.getMarkdown();
     form.setValue("content", content ?? "");
-    const validateFileds = formSchema.safeParse({ ...data, content });
+    const validateFileds = formSchema.safeParse({ ...values, content });
     if (validateFileds.success) {
-      data.content = content ?? ""; // 将内容设置到 data 对象中
-      createPost({
+      values.content = content ?? ""; // 将内容设置到 data 对象中
+      const data = {
         ...validateFileds.data,
         publishDate: validateFileds.data.publishDate?.toString(),
         categories: validateFileds.data.categories.map((c) => parseInt(c)),
-      });
+      };
+
+      if (isUpdate) {
+        updatePost({
+          id: Number(params.postId),
+          data,
+        });
+      } else {
+        createPost(data);
+      }
     }
   };
-
-  // const handleDateChange = (date: Date | undefined, isNow?: boolean) => {
-  //   if (date) {
-  //     if (!isNow) {
-  //       const selectedDate = form.getValues("publishDate");
-  //       const selectedHour = selectedDate?.getHours();
-  //       const selectedMins = selectedDate?.getMinutes();
-  //       selectedHour && date.setHours(selectedHour);
-  //       selectedMins && date.setMinutes(selectedMins);
-  //     }
-  //     form.setValue("publishDate", date);
-  //   }
-  // };
-
-  // const handleTimeChange = (
-  //   type: "hour" | "minute" | "ampm",
-  //   value: string
-  // ) => {
-  //   const currentDate = form.getValues("publishDate") || new Date();
-  //   let newDate = new Date(currentDate);
-
-  //   if (type === "hour") {
-  //     const hour = parseInt(value, 10);
-  //     newDate.setHours(newDate.getHours() >= 12 ? hour + 12 : hour);
-  //   } else if (type === "minute") {
-  //     newDate.setMinutes(parseInt(value, 10));
-  //   } else if (type === "ampm") {
-  //     const hours = newDate.getHours();
-  //     if (value === "AM" && hours >= 12) {
-  //       newDate.setHours(hours - 12);
-  //     } else if (value === "PM" && hours < 12) {
-  //       newDate.setHours(hours + 12);
-  //     }
-  //   }
-
-  //   form.setValue("publishDate", newDate);
-  // };
 
   return (
     <div>
@@ -193,7 +162,7 @@ const WritePage = () => {
                 <MultiSelect
                   options={formatCategories}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  selectedValues={field.value}
                   placeholder="添加文章分类，可以选择多个"
                   variant="inverted"
                   animation={0}
@@ -227,7 +196,7 @@ const WritePage = () => {
                 <FormItem className="flex flex-col">
                   <FormLabel>发布时间</FormLabel>
                   <DateTimePicker
-                    defaultDate={field.value}
+                    selectedDate={field.value}
                     onDateChange={field.onChange}
                   />
                   <FormMessage />
@@ -238,7 +207,7 @@ const WritePage = () => {
           <div>
             <Editor editorRef={editorRef} markdown="" />
           </div>
-          <Button type="submit">提交</Button>
+          <Button type="submit">{isUpdate ? "修改" : "创建"}</Button>
         </form>
       </Form>
     </div>
