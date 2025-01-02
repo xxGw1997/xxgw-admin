@@ -39,9 +39,23 @@ export const routes: RouteObject[] = [
         },
       },
       {
+        path: "/postList",
+        element: (
+          <LazyLoadComponent
+            Component={lazy(() => import("~/pages/post/post-list"))}
+          />
+        ),
+        handle: {
+          name: "PostList",
+          icon: <Edit />,
+        },
+      },
+      {
         path: "/write",
         element: (
-          <LazyLoadComponent Component={lazy(() => import("~/pages/write"))} />
+          <LazyLoadComponent
+            Component={lazy(() => import("~/pages/post/write-post"))}
+          />
         ),
         handle: {
           name: "Write",
@@ -51,10 +65,12 @@ export const routes: RouteObject[] = [
       {
         path: "/write/:postId",
         element: (
-          <LazyLoadComponent Component={lazy(() => import("~/pages/write"))} />
+          <LazyLoadComponent
+            Component={lazy(() => import("~/pages/post/write-post"))}
+          />
         ),
         handle: {
-          name: "Write",
+          name: "Edit Write",
           icon: <Edit />,
         },
       },
