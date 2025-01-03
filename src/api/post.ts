@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { httpRequest } from "~/lib/http";
 
@@ -96,5 +96,6 @@ export const useGetPostList = ({
         categories,
         page,
       }),
+    placeholderData: keepPreviousData,
   });
 };

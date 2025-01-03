@@ -6,6 +6,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+import type { OnChangeFn, PaginationState } from "@tanstack/react-table";
+
 import {
   Table,
   TableBody,
@@ -21,18 +23,33 @@ import { DataTableToolbar } from "./data-table-toolbar";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  pagination: PaginationState;
+  total: number;
+  onPageChange: OnChangeFn<PaginationState>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  pagination,
+  total,
+  onPageChange,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
+    pageCount: Math.ceil(total / pagination.pageSize),
+    state: {
+      pagination: {
+        pageIndex: pagination.pageIndex,
+        pageSize: pagination.pageSize,
+      },
+    },
+    onPaginationChange: onPageChange,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    autoResetPageIndex: true,
+    // autoResetPageIndex: true,
+    manualPagination: true,
   });
 
   return (
@@ -80,7 +97,7 @@ export function DataTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
-      {/* <DataTablePagination table={table} /> */}
+      <DataTablePagination table={table} />
     </div>
   );
 }
