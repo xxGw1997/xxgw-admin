@@ -2,7 +2,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
 import { AuthorType, PostListReturnDataType } from "~/api/post";
 import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
-import { Hint } from "~/components/hint";
 import { Badge } from "~/components/ui/badge";
 import {
   Tooltip,
