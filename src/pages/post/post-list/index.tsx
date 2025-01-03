@@ -1,18 +1,26 @@
 import { useGetPostList } from "~/api/post";
-import { columns } from "./components/columns";
-import { DataTable } from "./components/data-table";
+import { DataTable } from "~/components/data-table";
+
+import { columns } from "./columns";
+import { useState } from "react";
 
 const PostList = () => {
-  const { data: postList } = useGetPostList({
+  const [pageIndex, setPageIndex] = useState(0);
+
+  const { data: posts } = useGetPostList({
     page: {
-      size: 10,
-      index: 0,
+      size: 5,
+      index: pageIndex,
     },
   });
+  const postList = posts ? posts.postList : [];
 
   return (
     <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={postList ?? []} />
+      <DataTable columns={columns} data={postList} />
+      <button onClick={() => setPageIndex(pageIndex - 1)}>{"<"}</button>
+      {pageIndex + 1}
+      <button onClick={() => setPageIndex(pageIndex + 1)}>{">"}</button>
     </div>
   );
 };

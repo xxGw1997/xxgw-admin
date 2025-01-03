@@ -2,6 +2,7 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -13,6 +14,9 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+
+import { DataTablePagination } from "./data-table-pagination";
+import { DataTableToolbar } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -27,10 +31,13 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    autoResetPageIndex: true,
   });
 
   return (
     <div className="rounded-md border">
+      {/* <DataTableToolbar table={table} /> */}
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -73,6 +80,7 @@ export function DataTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
+      {/* <DataTablePagination table={table} /> */}
     </div>
   );
 }

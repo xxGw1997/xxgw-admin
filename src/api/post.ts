@@ -58,18 +58,37 @@ export type SearchPostListParamsType = {
   page: PageType;
 };
 
+export type AuthorType = {
+  name: string;
+  email: string;
+};
+
+export type PostListReturnDataType = Omit<PostInfoData, "author"> & {
+  author: AuthorType;
+};
+
 export const useGetPostList = ({
   title,
   author,
   categories,
   page,
 }: SearchPostListParamsType) => {
-  const pageKey =
+  const categoryKey =
     categories && categories.length > 0
       ? categories.sort((a, b) => a - b).join("-")
       : "";
-  return useQuery<PostInfoData[]>({
-    queryKey: ["post-list", title ?? "", author ?? "", pageKey],
+  return useQuery<{
+    page: { index: number; size: number; total: number };
+    postList: PostListReturnDataType[];
+  }>({
+    queryKey: [
+      "post-list",
+      title ?? "",
+      author ?? "",
+      categoryKey,
+      page.index,
+      page.size,
+    ],
     queryFn: () =>
       httpRequest.post(`/api/post/list`, {
         title,
