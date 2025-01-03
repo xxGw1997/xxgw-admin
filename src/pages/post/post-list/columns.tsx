@@ -2,7 +2,14 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
 import { AuthorType, PostListReturnDataType } from "~/api/post";
 import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
+import { Hint } from "~/components/hint";
 import { Badge } from "~/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { generateRGBFromString } from "~/lib/utils";
 
 export const columns: ColumnDef<PostListReturnDataType>[] = [
@@ -16,6 +23,18 @@ export const columns: ColumnDef<PostListReturnDataType>[] = [
     accessorKey: "desc",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="描述" />
+    ),
+    cell: ({ row }) => (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="max-w-[250px] truncate cursor-help">{row.getValue("desc")}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{row.getValue("desc")}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     ),
   },
   {
@@ -44,6 +63,7 @@ export const columns: ColumnDef<PostListReturnDataType>[] = [
             const color = generateRGBFromString(category);
             return (
               <Badge
+                key={category}
                 style={{
                   backgroundColor: color.bg,
                   color: color.color,
