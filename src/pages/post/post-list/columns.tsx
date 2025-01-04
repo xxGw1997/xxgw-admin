@@ -14,12 +14,18 @@ import { generateRGBFromString } from "~/lib/utils";
 export const columns: ColumnDef<PostListReturnDataType>[] = [
   {
     accessorKey: "title",
+    meta: {
+      lable: "标题",
+    },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="标题" />
     ),
   },
   {
     accessorKey: "desc",
+    meta: {
+      lable: "描述",
+    },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="描述" />
     ),
@@ -27,7 +33,9 @@ export const columns: ColumnDef<PostListReturnDataType>[] = [
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="max-w-[250px] truncate cursor-help">{row.getValue("desc")}</div>
+            <div className="max-w-[250px] truncate cursor-help">
+              {row.getValue("desc")}
+            </div>
           </TooltipTrigger>
           <TooltipContent>
             <p>{row.getValue("desc")}</p>
@@ -38,6 +46,9 @@ export const columns: ColumnDef<PostListReturnDataType>[] = [
   },
   {
     accessorKey: "author",
+    meta: {
+      lable: "作者",
+    },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="作者" />
     ),
@@ -51,6 +62,9 @@ export const columns: ColumnDef<PostListReturnDataType>[] = [
   },
   {
     accessorKey: "categories",
+    meta: {
+      lable: "分类",
+    },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="分类" />
     ),
@@ -78,6 +92,9 @@ export const columns: ColumnDef<PostListReturnDataType>[] = [
   },
   {
     accessorKey: "publishDate",
+    meta: {
+      lable: "发布时间",
+    },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="发布时间" />
     ),
@@ -89,6 +106,9 @@ export const columns: ColumnDef<PostListReturnDataType>[] = [
   },
   {
     accessorKey: "createdAt",
+    meta: {
+      lable: "创建时间",
+    },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="创建时间" />
     ),

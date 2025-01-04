@@ -53,7 +53,7 @@ export type PageType = {
 
 export type SearchPostListParamsType = {
   title?: string;
-  author?: number;
+  author?: string;
   categories?: number[];
   page: PageType;
 };
