@@ -6,11 +6,13 @@ import { useState } from "react";
 import { PaginationState } from "@tanstack/react-table";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
+import { MultiSelect } from "~/components/ui/muti-select";
+import { useGetCategories } from "~/api/category";
 
 type SearchFilterParamsType = {
   title: string;
   author: string;
-  categories: number[];
+  categories: string[];
 };
 
 const PostList = () => {
@@ -38,7 +40,23 @@ const PostList = () => {
     setQueryFilterParams({ ...searchFilterParams });
   };
 
-  const { data: posts } = useGetPostList({
+  const { data: categories } = useGetCategories();
+
+  const formatCategories = categories
+    ? categories.map((category) => ({
+        label: category.title,
+        value: category.id + "",
+      }))
+    : [];
+
+  const handleCategoryChange = (selectedValues: string[]) => {
+    setSearchFilterParams({
+      ...searchFilterParams,
+      categories: selectedValues,
+    });
+  };
+
+  const { data: posts, isFetching: postList_isLoading } = useGetPostList({
     page: {
       size: pagination.pageSize,
       index: pagination.pageIndex,
@@ -60,7 +78,7 @@ const PostList = () => {
               title: event.target.value,
             });
           }}
-          className="h-8 w-[50px] lg:w-[150px]"
+          className="h-8 w-[150px] lg:w-[250px]"
         />
         <Input
           placeholder="作者..."
@@ -71,7 +89,17 @@ const PostList = () => {
               author: event.target.value,
             });
           }}
-          className="h-8 w-[50px] lg:w-[150px]"
+          className="h-8 w-[150px] lg:w-[250px]"
+        />
+        <MultiSelect
+          className="h-8 w-[250px] lg:w-[350px]"
+          options={formatCategories}
+          onValueChange={handleCategoryChange}
+          selectedValues={searchFilterParams.categories}
+          placeholder="分类"
+          variant="inverted"
+          animation={0}
+          maxCount={2}
         />
 
         <Button onClick={handleSearch}>搜索</Button>
@@ -83,6 +111,7 @@ const PostList = () => {
         total={total}
         pagination={pagination}
         onPageChange={setPagination}
+        isLoading={postList_isLoading}
       />
     </div>
   );

@@ -14,6 +14,7 @@ import { generateRGBFromString } from "~/lib/utils";
 export const columns: ColumnDef<PostListReturnDataType>[] = [
   {
     accessorKey: "title",
+    enableHiding: false,
     meta: {
       lable: "标题",
     },

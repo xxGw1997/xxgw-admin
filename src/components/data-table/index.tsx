@@ -19,6 +19,7 @@ import {
 
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { Loader } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -26,6 +27,7 @@ interface DataTableProps<TData, TValue> {
   pagination: PaginationState;
   total: number;
   onPageChange: OnChangeFn<PaginationState>;
+  isLoading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -34,6 +36,7 @@ export function DataTable<TData, TValue>({
   pagination,
   total,
   onPageChange,
+  isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -54,7 +57,12 @@ export function DataTable<TData, TValue>({
   return (
     <div className="w-full space-y-2.5 overflow-auto">
       <DataTableToolbar table={table} />
-      <div className="rounded-md border overflow-hidden">
+      <div className="rounded-md border overflow-hidden relative">
+        {isLoading && (
+          <div className="w-full h-full absolute bg-white/50 z-10 flex justify-center items-center">
+            <Loader className="animate-spin" />
+          </div>
+        )}
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

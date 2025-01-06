@@ -54,7 +54,7 @@ export type PageType = {
 export type SearchPostListParamsType = {
   title?: string;
   author?: string;
-  categories?: number[];
+  categories?: string[];
   page: PageType;
 };
 
@@ -75,7 +75,7 @@ export const useGetPostList = ({
 }: SearchPostListParamsType) => {
   const categoryKey =
     categories && categories.length > 0
-      ? categories.sort((a, b) => a - b).join("-")
+      ? categories.sort((a, b) => Number(a) - Number(b)).join("-")
       : "";
   return useQuery<{
     page: { index: number; size: number; total: number };
