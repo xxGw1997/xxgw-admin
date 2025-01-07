@@ -32,7 +32,10 @@ export function RowActions({ row }: RowActionsProps) {
   const { mutate: deletePost } = useDeletePost({
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [GET_POST_LIST_KEY, [GET_POST_KEY, postId]],
+        queryKey: [GET_POST_LIST_KEY],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [[GET_POST_KEY, postId]],
       });
       toast.success("删除成功~");
     },
