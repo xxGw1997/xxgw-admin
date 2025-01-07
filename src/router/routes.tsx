@@ -63,6 +63,18 @@ export const routes: RouteObject[] = [
         },
       },
       {
+        path: "/category",
+        element: (
+          <LazyLoadComponent
+            Component={lazy(() => import("~/pages/category"))}
+          />
+        ),
+        handle: {
+          name: "Category",
+          icon: <Edit />,
+        },
+      },
+      {
         path: "/write/:postId",
         element: (
           <LazyLoadComponent

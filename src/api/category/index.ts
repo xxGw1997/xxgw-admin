@@ -1,10 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { httpRequest } from "~/lib/http";
-
-export type Category = {
-  id: number;
-  title: string;
-};
+import { Category } from "./types";
 
 export const CATEGORY_LIST_KEY = "CATEGORY_LIST_KEY";
 
