@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { generateRGBFromString } from "~/lib/utils";
+import { RowActions } from "./row-action";
 
 export const columns: ColumnDef<PostListReturnDataType>[] = [
   {
@@ -118,5 +119,9 @@ export const columns: ColumnDef<PostListReturnDataType>[] = [
         {format(parseISO(row.getValue("createdAt")), "yyyy-MM-dd HH:mm:ss")}
       </div>
     ),
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => <RowActions row={row} />,
   },
 ];

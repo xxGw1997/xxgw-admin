@@ -67,6 +67,8 @@ export type PostListReturnDataType = Omit<PostInfoData, "author"> & {
   author: AuthorType;
 };
 
+export const GET_POST_LIST_KEY = "GET_POST_LIST_KEY";
+
 export const useGetPostList = ({
   title,
   author,
@@ -82,7 +84,7 @@ export const useGetPostList = ({
     postList: PostListReturnDataType[];
   }>({
     queryKey: [
-      "post-list",
+      GET_POST_LIST_KEY,
       title ?? "",
       author ?? "",
       categoryKey,
@@ -99,3 +101,13 @@ export const useGetPostList = ({
     placeholderData: keepPreviousData,
   });
 };
+
+export const useDeletePost = ({ onSuccess }: { onSuccess?: () => void }) =>
+  useMutation<
+    { message: string },
+    AxiosResponse<{ message: string }>,
+    { id: number }
+  >({
+    mutationFn: (payload) => httpRequest.delete(`/api/post/${payload.id}`),
+    onSuccess: onSuccess ? onSuccess : () => {},
+  });
