@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
+import { toast } from "sonner";
 import { httpRequest } from "~/lib/http";
 
 export type PostInfo = {
@@ -33,6 +34,9 @@ export const useGetPost = (postId: string | undefined) =>
 export const useCreatePost = () =>
   useMutation<PostInfoData, AxiosResponse<PostInfoData>, PostInfo>({
     mutationFn: (payload) => httpRequest.post("/api/post", payload),
+    onSuccess: () => {
+      toast.success("创建成功~");
+    },
   });
 
 export const useUpdatePost = ({ onSuccess }: { onSuccess?: () => void }) =>

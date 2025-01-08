@@ -3,3 +3,7 @@ export type Category = {
   img: string;
   title: string;
 };
+
+export type DeleteCategoryReturnType = {
+  countInUse: number;
+};

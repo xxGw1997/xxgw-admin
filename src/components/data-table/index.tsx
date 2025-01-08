@@ -24,10 +24,12 @@ import { Loader } from "lucide-react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  pagination: PaginationState;
+  pagination?: PaginationState | undefined;
   total: number;
-  onPageChange: OnChangeFn<PaginationState>;
+  onPageChange?: OnChangeFn<PaginationState> | undefined;
   isLoading?: boolean;
+  manualPagination?: boolean;
+  showToolBar?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -35,28 +37,32 @@ export function DataTable<TData, TValue>({
   data,
   pagination,
   total,
-  onPageChange,
+  onPageChange = undefined,
   isLoading = false,
+  manualPagination = true,
+  showToolBar = true,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
-    pageCount: Math.ceil(total / pagination.pageSize),
-    state: {
-      pagination: {
-        pageIndex: pagination.pageIndex,
-        pageSize: pagination.pageSize,
-      },
-    },
+    pageCount: pagination ? Math.ceil(total / pagination.pageSize) : undefined,
+    state: pagination
+      ? {
+          pagination: {
+            pageIndex: pagination.pageIndex,
+            pageSize: pagination.pageSize,
+          },
+        }
+      : undefined,
     onPaginationChange: onPageChange,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    manualPagination: true,
+    manualPagination,
   });
 
   return (
     <div className="w-full space-y-2.5 overflow-auto">
-      <DataTableToolbar table={table} />
+      {showToolBar && <DataTableToolbar table={table} />}
       <div className="rounded-md border overflow-hidden relative">
         {isLoading && (
           <div className="w-full h-full absolute bg-white/50 z-10 flex justify-center items-center">
