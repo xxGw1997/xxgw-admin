@@ -6,6 +6,7 @@ import { Upload } from "lucide-react";
 import { ImgInfo } from "./mdx-editor/insert-image";
 import { checkImageFile, cn } from "~/lib/utils";
 import { toast } from "sonner";
+import { uploadFile } from "~/api/file";
 
 export type UploadStatus = "idle" | "uploading" | "success" | "error";
 
@@ -33,36 +34,12 @@ export const FileUploader = ({ uploadCallback }: FileUploaderProps) => {
 
   const handleFileUpload = async () => {
     if (!file) return;
-
     setStatus("uploading");
     try {
-      const res = await fetch("/api/ali-oss/getOssInfo", {
-        method: "POST",
-      });
-      if (res.ok) {
-        const ossInfo = await res.json();
-        const formData = new FormData();
-        const fileKey = `${Date.now()}_${file.name}`;
-        formData.append("key", fileKey);
-        formData.append("OSSAccessKeyId", ossInfo.OSSAccessKeyId);
-        formData.append("policy", ossInfo.policy);
-        formData.append("signature", ossInfo.Signature);
-        formData.append("success_action_status", "200");
-        formData.append("file", file);
-
-        const uploadRes = await fetch(ossInfo.host, {
-          method: "POST",
-          body: formData,
-        });
-
-        if (uploadRes.ok) {
-          const imgUrl = `${ossInfo.host}/${fileKey}`;
-          uploadCallback &&
-            uploadCallback({ src: imgUrl, title: file.name, alt: file.name });
-          setImgUrl(imgUrl);
-          setStatus("success");
-        }
-      }
+      const res = await uploadFile(file);
+      setImgUrl(res.src);
+      setStatus("success");
+      uploadCallback && uploadCallback(res);
     } catch (error) {
       setStatus("error");
     }

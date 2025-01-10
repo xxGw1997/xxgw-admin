@@ -27,7 +27,7 @@ import DateTimePicker from "~/components/date-time-picker";
 
 const formSchema = z
   .object({
-    title: z.string().max(32).min(1, { message: "请输入文章标题" }).trim(),
+    title: z.string().max(50).min(1, { message: "请输入文章标题" }).trim(),
     desc: z.string().max(50).min(1, { message: "请输入文章描述" }).trim(),
     categories: z.array(z.string().min(1)).min(1).nonempty("请选择一个分类"),
     content: z.string().trim(),
@@ -47,18 +47,22 @@ const formSchema = z
     }
   );
 
+const formInitValue = {
+  title: "",
+  desc: "",
+  categories: [],
+  content: "",
+  isPublishNow: true,
+  publishDate: new Date(),
+};
+
 const WritePage = () => {
   const editorRef = useRef<MDXEditorMethods>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      desc: "",
-      categories: [],
-      content: "",
-      isPublishNow: true,
-      publishDate: new Date(),
+      ...formInitValue,
     },
   });
 
@@ -87,6 +91,11 @@ const WritePage = () => {
         publishDate: parseISO(postInfo.publishDate ?? ""),
       });
       editorRef.current?.setMarkdown(postInfo.content);
+    } else {
+      form.reset({
+        ...formInitValue,
+      });
+      editorRef.current?.setMarkdown("");
     }
   }, [postInfo]);
 
